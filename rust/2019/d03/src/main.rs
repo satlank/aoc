@@ -80,9 +80,42 @@ fn find_intersections(path1: &Vec<Point>, path2: &Vec<Point>) -> Vec<Point> {
     return res;
 }
 
+fn is_point_in_segment(ps1: &Point, ps2: &Point, p: &Point) -> bool {
+    ((ps1.x <= p.x && p.x <= ps2.x) || (ps2.x <= p.x && p.x <= ps1.x))
+        && ((ps1.y <= p.y && p.y <= ps2.y) || (ps2.y <= p.y && p.y <= ps1.y))
+}
+
+fn find_path_lengths(path: &Vec<Point>, points: &Vec<Point>) -> Vec<i32> {
+    let mut plens : Vec<i32> = points.iter().map(|p| 0).collect();
+    let mut done : Vec<bool> = points.iter().map(|p| false).collect();
+    for i in 0..path.len() - 1 {
+        let ps1 = &path[i];
+        let ps2 = &path[i+1];
+        let segment_len = l1_norm(ps1, ps2);
+        for j in 0..points.len() {
+            if done[j] {
+                continue
+            }
+            if is_point_in_segment(ps1, ps2, &points[j]) {
+                plens[j] += l1_norm(ps1, &points[j]);
+                done[j] = true;
+            } else {
+                plens[j] += segment_len;
+            }
+        }
+    }
+    return plens;
+}
+
 fn find_min_dist(points: &Vec<Point>) -> Option<i32> {
     let origin = Point{x: 0, y: 0};
     points.iter().map(|p| l1_norm(&origin, &p)).filter(|d| *d != 0).min()
+}
+
+fn find_min_combined_steps(path1: &Vec<Point>, path2: &Vec<Point>, common: &Vec<Point>) -> Option<i32> {
+    let steps1 = find_path_lengths(path1, common);
+    let steps2 = find_path_lengths(path2, common);
+    steps1.iter().zip(steps2.iter()).map(|(s1, s2)| s1+s2).filter(|d| *d != 0).min()
 }
 
 fn main() {
@@ -95,8 +128,10 @@ fn main() {
     let path2 = path_to_points(input[1].clone());
     let common = find_intersections(&path1, &path2);
     let dist = find_min_dist(&common);
+    let combined_steps = find_min_combined_steps(&path1, &path2, &common);
 
-    println!("{:?}", dist);
+    println!("Closest intersection {:?}", dist);
+    println!("Min combined steps: {:?}", combined_steps);
 }
 
 #[cfg(test)]
@@ -223,4 +258,42 @@ mod tests {
         let actual_dist = find_min_dist(&common);
         assert_eq!(actual_dist.unwrap(), 135);
     }
+
+    #[test]
+    fn test_path_lengths() {
+        let path = path_to_points("R10,U3,R4,D1,L2".to_string());
+        let crossings = vec![
+            Point{x: 0, y: 0},
+            Point{x: 8, y: 0},
+            Point{x: 12, y: 3},
+            Point{x: 13, y: 2}
+        ];
+        let res = find_path_lengths(&path, &crossings);
+        assert_eq!(res, [0, 8, 10+3+2, 10+3+4+1+1]);
+    }
+
+    #[test]
+    fn test_part2_ex1() {
+        let path1 = path_to_points("R8,U5,L5,D3".to_string());
+        let path2 = path_to_points("U7,R6,D4,L4".to_string());
+        let common = find_intersections(&path1, &path2);
+        assert_eq!(find_min_combined_steps(&path1, &path2, &common).unwrap(), 30);
+    }
+
+    #[test]
+    fn test_part2_ex2() {
+        let path1 = path_to_points("R75,D30,R83,U83,L12,D49,R71,U7,L72".to_string());
+        let path2 = path_to_points("U62,R66,U55,R34,D71,R55,D58,R83".to_string());
+        let common = find_intersections(&path1, &path2);
+        assert_eq!(find_min_combined_steps(&path1, &path2, &common).unwrap(), 610);
+    }
+
+    #[test]
+    fn test_part2_ex3() {
+        let path1 = path_to_points("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51".to_string());
+        let path2 = path_to_points("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7".to_string());
+        let common = find_intersections(&path1, &path2);
+        assert_eq!(find_min_combined_steps(&path1, &path2, &common).unwrap(), 410);
+    }
+
 }

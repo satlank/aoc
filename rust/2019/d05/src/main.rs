@@ -97,6 +97,60 @@ fn run_program(memory: &mut Vec<i32>, initial_op_counter: usize) {
                 output_counter += 1;
                 op_counter += (1 + num_params) as usize;
             },
+            5 => {
+                let num_params = 2;
+                let modes = get_parameter_modes(parametermode, num_params);
+                let con = get_value(memory, op_counter + 1 as usize, modes[0]);
+                if con != 0 {
+                    let new_opcounter = get_value(memory, op_counter + 2 as usize, modes[1]) as usize;
+                    op_counter = new_opcounter;
+                } else {
+                    op_counter += (1 + num_params) as usize;
+                }
+            },
+            6 => {
+                let num_params = 2;
+                let modes = get_parameter_modes(parametermode, num_params);
+                let con = get_value(memory, op_counter + 1 as usize, modes[0]);
+                if con == 0 {
+                    let new_opcounter = get_value(memory, op_counter + 2 as usize, modes[1]) as usize;
+                    op_counter = new_opcounter;
+                } else {
+                    op_counter += (1 + num_params) as usize;
+                }
+            },
+            7 => {
+                let num_params = 3;
+                let modes = get_parameter_modes(parametermode, num_params);
+                if modes[2] != 0 {
+                    println!(
+                        "op_counter: {:?}, opcode: {:?}, modes: {:?}",
+                        op_counter, opcode, modes
+                    );
+                    panic!("Expected mode 0 for result parameter")
+                }
+                let first = get_value(memory, op_counter + 1 as usize, modes[0]);
+                let second = get_value(memory, op_counter + 2 as usize, modes[1]);
+                let pr = memory[op_counter + 3] as usize;
+                memory[pr] = if first < second { 1 } else { 0 };
+                op_counter += (1 + num_params) as usize;
+            },
+            8 => {
+                let num_params = 3;
+                let modes = get_parameter_modes(parametermode, num_params);
+                if modes[2] != 0 {
+                    println!(
+                        "op_counter: {:?}, opcode: {:?}, modes: {:?}",
+                        op_counter, opcode, modes
+                    );
+                    panic!("Expected mode 0 for result parameter")
+                }
+                let first = get_value(memory, op_counter + 1 as usize, modes[0]);
+                let second = get_value(memory, op_counter + 2 as usize, modes[1]);
+                let pr = memory[op_counter + 3] as usize;
+                memory[pr] = if first == second { 1 } else { 0 };
+                op_counter += (1 + num_params) as usize;
+            },
             _ => {
                 println!("op_counter: {:?}, op_code: {:?}", op_counter, opcode);
                 panic!("Unsupported opcode")

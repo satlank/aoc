@@ -25,6 +25,13 @@ impl PasswordRow {
         let cnt = self.password.chars().filter(|&c| c == self.letter).count() as i32;
         self.min <= cnt && cnt <= self.max
     }
+
+    fn valid2(&self) -> bool {
+        let a = self.password.chars().nth((self.min - 1) as usize);
+        let b = self.password.chars().nth((self.max - 1) as usize);
+        let c = Some(self.letter);
+        (a == c && b != c) || (a != c && b == c)
+    }
 }
 
 fn read<R: Read>(io: R) -> Result<Vec<PasswordRow>, Error> {
@@ -42,9 +49,14 @@ fn part1(vec: &Vec<PasswordRow>) -> i32 {
     vec.iter().filter(|&r| r.valid()).count() as i32
 }
 
+fn part2(vec: &Vec<PasswordRow>) -> i32 {
+    vec.iter().filter(|&r| r.valid2()).count() as i32
+}
+
 fn main() -> Result<(), Error> {
     let vec = read(File::open("input.txt")?)?;
     println!("Number of valid passwords: {}", part1(&vec));
+    println!("Number of valid passwords part2: {}", part2(&vec));
     Ok(())
 }
 
@@ -64,6 +76,19 @@ mod tests {
     fn test_valid() {
         assert!(
             PasswordRow { min: 1, max: 3, letter: 'a', password: "abc".to_string() }.valid()
+        );
+    }
+
+    #[test]
+    fn test_valid2() {
+        assert!(
+            PasswordRow { min: 1, max: 3, letter: 'a', password: "abcde".to_string() }.valid2()
+        );
+        assert!(
+            !PasswordRow { min: 1, max: 3, letter: 'b', password: "abcde".to_string() }.valid2()
+        );
+        assert!(
+            !PasswordRow { min: 2, max: 9, letter: 'c', password: "ccccccccc".to_string() }.valid2()
         );
     }
 }

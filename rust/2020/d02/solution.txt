@@ -1,0 +1,2 @@
+Number of valid passwords: 515
+Number of valid passwords part2: 711

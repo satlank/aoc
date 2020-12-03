@@ -33,18 +33,22 @@ impl Field {
     fn at(&self, row: usize, col: usize) -> char {
         self.data[row * self.cols + (col % self.cols)]
     }
+
+    fn collisions(&self, row_inc: usize, col_inc: usize) -> usize {
+        let mut row = 0;
+        let mut virt_col = 0;
+        let mut collisions = 0;
+        while row < self.rows {
+            if self.at(row, virt_col) == '#' { collisions += 1 }
+            virt_col += col_inc;
+            row += row_inc;
+        }
+        return collisions
+    }
 }
 
 fn part1(field: &Field) -> usize {
-    let mut row = 0;
-    let mut virt_col = 0;
-    let mut collisions = 0;
-    while row < field.rows {
-        if field.at(row, virt_col) == '#' { collisions += 1 }
-        virt_col += 3;
-        row += 1;
-    }
-    return collisions
+    field.collisions(1, 3)
 }
 
 fn main() -> Result<(), Error> {

@@ -45,7 +45,7 @@ impl Field {
             virt_col += col_inc;
             row += row_inc;
         }
-        return collisions;
+        collisions
     }
 }
 

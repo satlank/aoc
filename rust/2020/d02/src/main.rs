@@ -48,11 +48,11 @@ fn read<R: Read>(io: R) -> Result<Vec<PasswordRow>, Error> {
         .collect()
 }
 
-fn part1(vec: &Vec<PasswordRow>) -> i32 {
+fn part1(vec: &[PasswordRow]) -> i32 {
     vec.iter().filter(|&r| r.valid()).count() as i32
 }
 
-fn part2(vec: &Vec<PasswordRow>) -> i32 {
+fn part2(vec: &[PasswordRow]) -> i32 {
     vec.iter().filter(|&r| r.valid2()).count() as i32
 }
 

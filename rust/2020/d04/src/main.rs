@@ -109,7 +109,7 @@ fn read<R: Read>(io: R) -> Result<Vec<Passport>, Error> {
     let mut item = String::from("");
     for line in br.lines() {
         let line = line?;
-        if line.len() == 0 {
+        if line.is_empty() {
             res.push(Passport::parse(item).map_err(|e| Error::new(ErrorKind::InvalidData, e))?);
             item = String::from("");
         }
@@ -118,11 +118,11 @@ fn read<R: Read>(io: R) -> Result<Vec<Passport>, Error> {
     Ok(res)
 }
 
-fn part1(vec: &Vec<Passport>) -> usize {
+fn part1(vec: &[Passport]) -> usize {
     vec.iter().filter(|&p| p.valid()).count()
 }
 
-fn part2(vec: &Vec<Passport>) -> usize {
+fn part2(vec: &[Passport]) -> usize {
     vec.iter().filter(|&p| p.valid2()).count()
 }
 

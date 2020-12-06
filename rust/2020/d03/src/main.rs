@@ -20,14 +20,14 @@ impl Field {
             if cols == 0 {
                 cols = line.len();
             } else if cols != line.len() {
-                return Err(Error::new(ErrorKind::InvalidData, ""))
+                return Err(Error::new(ErrorKind::InvalidData, ""));
             }
             for c in line.chars() {
                 data.push(c);
             }
             rows += 1;
         }
-        Ok(Field {data, cols, rows})
+        Ok(Field { data, cols, rows })
     }
 
     fn at(&self, row: usize, col: usize) -> char {
@@ -39,11 +39,13 @@ impl Field {
         let mut virt_col = 0;
         let mut collisions = 0;
         while row < self.rows {
-            if self.at(row, virt_col) == '#' { collisions += 1 }
+            if self.at(row, virt_col) == '#' {
+                collisions += 1
+            }
             virt_col += col_inc;
             row += row_inc;
         }
-        return collisions
+        return collisions;
     }
 }
 
@@ -53,13 +55,7 @@ fn part1(field: &Field) -> usize {
 
 fn part2(field: &Field) -> usize {
     let mut cols = 1;
-    let options = vec![
-        (1, 1),
-        (1, 3),
-        (1, 5),
-        (1, 7),
-        (2, 1)
-    ];
+    let options = vec![(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)];
     for (row_inc, col_inc) in options.iter() {
         cols *= field.collisions(*row_inc, *col_inc);
     }
@@ -73,9 +69,7 @@ fn main() -> Result<(), Error> {
     Ok(())
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
 }

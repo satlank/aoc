@@ -1,8 +1,9 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
-use std::collections::HashMap;
 
-#[macro_use] extern crate scan_fmt;
+#[macro_use]
+extern crate scan_fmt;
 
 #[derive(Debug, Eq, PartialEq)]
 struct Passport {
@@ -36,7 +37,13 @@ impl Passport {
     }
 
     fn valid(&self) -> bool {
-        self.byr.is_some() && self.iyr.is_some() && self.eyr.is_some() && self.hgt.is_some() && self.hcl.is_some() && self.ecl.is_some() && self.pid.is_some()
+        self.byr.is_some()
+            && self.iyr.is_some()
+            && self.eyr.is_some()
+            && self.hgt.is_some()
+            && self.hcl.is_some()
+            && self.ecl.is_some()
+            && self.pid.is_some()
     }
 
     fn valid2(&self) -> bool {
@@ -79,7 +86,13 @@ fn validate_hcl<S: AsRef<str>>(hcl: S) -> bool {
 
 fn validate_ecl<S: AsRef<str>>(ecl: S) -> bool {
     let ecl = ecl.as_ref();
-    ecl == "amb" || ecl == "blu" || ecl == "brn" || ecl == "gry" || ecl == "grn" || ecl == "hzl" || ecl == "oth"
+    ecl == "amb"
+        || ecl == "blu"
+        || ecl == "brn"
+        || ecl == "gry"
+        || ecl == "grn"
+        || ecl == "hzl"
+        || ecl == "oth"
 }
 
 fn validate_pid<S: AsRef<str>>(pid: S) -> bool {
@@ -132,25 +145,25 @@ mod tests {
 
     #[test]
     fn test_validation() {
-        assert!(
-            Passport::parse("ecl:gry pid:860033327 eyr:2020 hcl:#fffffd byr:1937 iyr:2017 cid:147 hgt:183cm")
-            .unwrap()
-            .valid()
-        );
-        assert!(
-            !Passport::parse("iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884 hcl:#cfa07d byr:1929")
-            .unwrap()
-            .valid()
-        );
-        assert!(
-            Passport::parse("hcl:#ae17e1 iyr:2013 eyr:2024 ecl:brn pid:760753108 byr:1931 hgt:179cm")
-            .unwrap()
-            .valid()
-        );
+        assert!(Passport::parse(
+            "ecl:gry pid:860033327 eyr:2020 hcl:#fffffd byr:1937 iyr:2017 cid:147 hgt:183cm"
+        )
+        .unwrap()
+        .valid());
+        assert!(!Passport::parse(
+            "iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884 hcl:#cfa07d byr:1929"
+        )
+        .unwrap()
+        .valid());
+        assert!(Passport::parse(
+            "hcl:#ae17e1 iyr:2013 eyr:2024 ecl:brn pid:760753108 byr:1931 hgt:179cm"
+        )
+        .unwrap()
+        .valid());
         assert!(
             !Passport::parse("hcl:#cfa07d eyr:2025 pid:166559648 iyr:2011 ecl:brn hgt:59in")
-            .unwrap()
-            .valid()
+                .unwrap()
+                .valid()
         );
     }
 

@@ -1,8 +1,9 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
-use std::collections::HashMap;
 
-#[macro_use] extern crate scan_fmt;
+#[macro_use]
+extern crate scan_fmt;
 
 #[derive(Debug, Eq, PartialEq)]
 struct BPass {
@@ -12,41 +13,32 @@ struct BPass {
 impl BPass {
     fn parse<S: AsRef<str>>(line: S) -> Result<BPass, scan_fmt::parse::ScanError> {
         let code = scan_fmt!(line.as_ref(), "{/[FB]{7}[LR]{3}/}", String)?;
-        Ok(BPass{code})
+        Ok(BPass { code })
     }
 
     fn id(&self) -> usize {
-        let (row, column) = self.resolve();
-        row * 8 + column
+        let bin = self
+            .code
+            .chars()
+            .map(|c| if c == 'B' || c == 'R' { '1' } else { '0' })
+            .collect::<String>();
+        usize::from_str_radix(&bin, 2).unwrap()
     }
 
     fn resolve(&self) -> (usize, usize) {
-        let mut row: usize = 0;
-        let mut col: usize = 0;
-        for c in self.code[0..7].chars() {
-            row <<= 1;
-            if c == 'B' {
-                row += 1;
-            }
-        }
-        for c in self.code[7..10].chars() {
-            col <<= 1;
-            if c == 'R' {
-                col += 1;
-            }
-        }
-        (row, col)
+        let id = self.id();
+        ((id & 1017) >> 3, id & 7)
     }
 }
 
 fn read<R: Read>(io: R) -> Result<Vec<BPass>, Error> {
     let br = BufReader::new(io);
     br.lines()
-        .map(
-            |line| line.and_then(
-                |row| BPass::parse(row).map_err(|e| Error::new(ErrorKind::InvalidData, e))
-            )
-        )
+        .map(|line| {
+            line.and_then(|row| {
+                BPass::parse(row).map_err(|e| Error::new(ErrorKind::InvalidData, e))
+            })
+        })
         .collect()
 }
 
@@ -67,7 +59,7 @@ fn part2(vec: &Vec<BPass>) -> usize {
             break;
         }
         id += 2;
-    };
+    }
     id
 }
 
@@ -95,5 +87,4 @@ mod tests {
         assert_eq!(119, BPass::parse("FFFBBBFRRR").unwrap().id());
         assert_eq!(820, BPass::parse("BBFFBBFRLL").unwrap().id());
     }
-
 }

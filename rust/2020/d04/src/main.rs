@@ -47,10 +47,8 @@ impl Passport {
     }
 
     fn valid2(&self) -> bool {
-        if !self.valid() {
-            return false;
-        }
-        validate_year(self.byr.as_ref().unwrap(), 1920, 2002)
+        self.valid()
+            && validate_year(self.byr.as_ref().unwrap(), 1920, 2002)
             && validate_year(self.iyr.as_ref().unwrap(), 2010, 2020)
             && validate_year(self.eyr.as_ref().unwrap(), 2020, 2030)
             && validate_height(self.hgt.as_ref().unwrap())

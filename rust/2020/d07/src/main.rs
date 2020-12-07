@@ -64,9 +64,29 @@ fn part_1(vec: &[Rule]) -> usize {
     colours.len() - 1
 }
 
+fn calc_bags(colour: &String, rules: &HashMap<&String, &HashMap<String, usize>>) -> usize {
+    let r = rules[colour];
+    if r.is_empty() {
+        return 0;
+    }
+    r.iter()
+        .map(|item| {
+            *item.1 + *item.1 * calc_bags(item.0, rules)
+        })
+        .sum()
+}
+
+fn part_2(vec: &[Rule]) -> usize {
+    let rules = vec.iter()
+        .map(|e| (&e.colour, &e.count))
+        .collect::<HashMap<&String, &HashMap<String, usize>>>();
+    calc_bags(&"shiny gold".to_string(), &rules)
+}
+
 fn main() -> Result<(), Error> {
     let vec = read(File::open("input.txt")?)?;
     println!("Read {} rules", vec.len());
     println!("Coloured bags eventually containing a shiny gold one: {}", part_1(&vec));
+    println!("Bags inside the shiny gold bag: {}", part_2(&vec));
     Ok(())
 }

@@ -1,0 +1,3 @@
+Read 594 rules
+Coloured bags eventually containing a shiny gold one: 252
+Bags inside the shiny gold bag: 35487

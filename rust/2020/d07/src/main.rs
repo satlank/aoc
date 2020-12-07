@@ -18,15 +18,19 @@ impl Rule {
         let colour = format!("{} {}", colour[0], colour[1]);
         let mut count = HashMap::new();
         for rule in phrases[1].split(',') {
-            if rule == " no other bags." { continue }
+            if rule == " no other bags." {
+                continue;
+            }
             let (cnt, colour, _) = scan_fmt!(
                 rule,
                 " {d} {/[a-z]+ [a-z]+/} {/[a-z,.]+/}",
-                usize, String, String
+                usize,
+                String,
+                String
             )?;
             count.insert(colour.to_string(), cnt);
         }
-        Ok(Rule { colour, count})
+        Ok(Rule { colour, count })
     }
 }
 
@@ -34,28 +38,26 @@ fn read<R: Read>(io: R) -> Result<Vec<Rule>, Error> {
     BufReader::new(io)
         .lines()
         .map(|line| {
-            line.and_then(|row| {
-                Rule::parse(row).map_err(|e| Error::new(ErrorKind::InvalidData, e))
-            })
+            line.and_then(|row| Rule::parse(row).map_err(|e| Error::new(ErrorKind::InvalidData, e)))
         })
         .collect()
 }
 
 fn part_1(vec: &[Rule]) -> usize {
-    let rules = vec.iter()
+    let rules = vec
+        .iter()
         .map(|e| (&e.colour, e.count.keys().collect::<HashSet<_>>()))
         .collect::<HashMap<&String, HashSet<&String>>>();
     let my_bag = "shiny gold".to_string();
-    let mut colours: HashSet<&String> = [ &my_bag ].iter().cloned().collect();
+    let mut colours: HashSet<&String> = [&my_bag].iter().cloned().collect();
     loop {
-        let new_colours: HashSet<&String> = rules.iter()
+        let new_colours: HashSet<&String> = rules
+            .iter()
             .filter(|r| !colours.contains(r.0))
-            .filter(|r| {
-                r.1.intersection(&colours).count() > 0
-            })
+            .filter(|r| r.1.intersection(&colours).count() > 0)
             .map(|r| *r.0)
             .collect();
-        if new_colours.len() > 0 {
+        if !new_colours.is_empty() {
             colours = colours.union(&new_colours).cloned().collect();
         } else {
             break;
@@ -70,14 +72,13 @@ fn calc_bags(colour: &String, rules: &HashMap<&String, &HashMap<String, usize>>)
         return 0;
     }
     r.iter()
-        .map(|item| {
-            *item.1 + *item.1 * calc_bags(item.0, rules)
-        })
+        .map(|item| *item.1 + *item.1 * calc_bags(item.0, rules))
         .sum()
 }
 
 fn part_2(vec: &[Rule]) -> usize {
-    let rules = vec.iter()
+    let rules = vec
+        .iter()
         .map(|e| (&e.colour, &e.count))
         .collect::<HashMap<&String, &HashMap<String, usize>>>();
     calc_bags(&"shiny gold".to_string(), &rules)
@@ -86,7 +87,10 @@ fn part_2(vec: &[Rule]) -> usize {
 fn main() -> Result<(), Error> {
     let vec = read(File::open("input.txt")?)?;
     println!("Read {} rules", vec.len());
-    println!("Coloured bags eventually containing a shiny gold one: {}", part_1(&vec));
+    println!(
+        "Coloured bags eventually containing a shiny gold one: {}",
+        part_1(&vec)
+    );
     println!("Bags inside the shiny gold bag: {}", part_2(&vec));
     Ok(())
 }

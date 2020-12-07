@@ -14,8 +14,7 @@ impl Rule {
     fn parse<S: AsRef<str>>(line: S) -> Result<Rule, scan_fmt::parse::ScanError> {
         let line = line.as_ref();
         let phrases: Vec<&str> = line.split("contain").collect();
-        let colour = phrases[0].split(' ').take(2).collect::<Vec<_>>();
-        let colour = format!("{} {}", colour[0], colour[1]);
+        let (colour, _) = scan_fmt!(phrases[0], "{/[a-z]+ [a-z]+/} {}", String, String)?;
         let mut count = HashMap::new();
         for rule in phrases[1].split(',') {
             if rule == " no other bags." {

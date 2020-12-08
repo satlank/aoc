@@ -39,13 +39,16 @@ fn read<R: Read>(io: R) -> Result<Vec<Operation>, Error> {
         .collect()
 }
 
-fn part1(prog: &[Operation]) -> i32 {
+fn run(prog: &[Operation]) -> (bool, i32) {
     let mut acc = 0;
     let mut op_cntr = 0;
     let mut executed = HashSet::new();
     loop {
-        if executed.contains(&op_cntr) {
-            break;
+        if op_cntr == prog.len() {
+            return (true, acc);
+        }
+        if executed.contains(&op_cntr) || op_cntr > prog.len() {
+            return (false, acc);
         }
         executed.insert(op_cntr);
         match prog[op_cntr].op {
@@ -61,7 +64,11 @@ fn part1(prog: &[Operation]) -> i32 {
             },
         }
     }
-    acc
+}
+
+fn part1(prog: &[Operation]) -> i32 {
+    let (_, result) = run(prog);
+    result
 }
 
 fn main() -> Result<(), Error> {

@@ -1,2 +1,3 @@
 Read 623 instructions
 Accumulation before infinite loop: 1801
+Accumulation before termination: 2060

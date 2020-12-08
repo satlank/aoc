@@ -5,10 +5,12 @@ use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
 #[macro_use]
 extern crate scan_fmt;
 
+#[derive(Clone, PartialEq)]
 enum OpName {
     ACC, NOP, JMP
 }
 
+#[derive(Clone)]
 struct Operation {
     op: OpName,
     value: i32,
@@ -71,9 +73,29 @@ fn part1(prog: &[Operation]) -> i32 {
     result
 }
 
+fn part2(prog: &[Operation]) -> i32 {
+    for patch in 0..prog.len() {
+        if prog[patch].op != OpName::ACC {
+            let mut patched: Vec<Operation> = prog[..patch].iter().cloned().collect();
+            patched.push(
+                if prog[patch].op == OpName::JMP {
+                    Operation { op: OpName::NOP, value: prog[patch].value }
+                } else {
+                    Operation { op: OpName::JMP, value: prog[patch].value }
+                }
+            );
+            patched.extend_from_slice(&prog[patch+1..]);
+            let (completed, acc) = run(&patched);
+            if completed { return acc };
+        }
+    }
+    -1
+}
+
 fn main() -> Result<(), Error> {
     let vec = read(File::open("input.txt")?)?;
     println!("Read {} instructions", vec.len());
     println!("Accumulation before infinite loop: {}", part1(&vec));
+    println!("Accumulation before termination: {}", part2(&vec));
     Ok(())
 }

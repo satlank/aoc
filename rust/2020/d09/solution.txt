@@ -1,0 +1,3 @@
+Read 1000 numbers
+776203571 is not a sum of two preamble values
+Encryption weakness is 104800569

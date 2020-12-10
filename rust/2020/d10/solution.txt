@@ -1,0 +1,2 @@
+Read 98 numbers
+Number of 1 jolt differences multiplied by number of 3 jolt differences: 2210

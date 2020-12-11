@@ -1,2 +1,3 @@
 Field of 90 x 97 read
 Total occupied seats in part 1: 2265
+Total occupied seats in part 2: 2045

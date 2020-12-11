@@ -37,26 +37,36 @@ impl Field {
             .count()
     }
 
-    fn at(&self, row: usize, col: usize) -> Option<char> {
-        if row >= self.rows || col >= self.cols {
+    fn at(&self, row: isize, col: isize) -> Option<char> {
+        if row < 0 || row >= self.rows as isize || col < 0 || col >= self.cols as isize {
             None
         } else {
-            Some(self.data[row * self.cols + col])
+            Some(self.data[(row as usize) * self.cols + (col as usize)])
         }
     }
 
-    fn count_occupancy_at(&self, row: usize, col: usize) -> usize {
-        let row_from = if row == 0 { 0 } else { row - 1 };
-        let row_to = if row == self.rows - 1 { row } else { row + 1};
-        let col_from = if col == 0 { 0 } else { col - 1 };
-        let col_to = if col == self.cols - 1 { col } else {col + 1};
+    fn find_first(&self, row: usize, col: usize, row_inc: isize, col_inc: isize, steps: usize) -> Option<char> {
+        let mut step: isize = 1;
+        loop {
+            match self.at(row as isize + step * row_inc, col as isize + step * col_inc) {
+                Some(x) => if x != '.' { return Some(x) },
+                None => return None,
+            };
+            step += 1;
+            if step as usize > steps {
+                return None;
+            }
+        }
+    }
+
+    fn count_occupancy_at(&self, row: usize, col: usize, steps: usize) -> usize {
         let mut occupancy = 0;
-        for r in row_from..=row_to {
-            for c in col_from..=col_to {
-                if r == row && c == col {
+        for r in -1..=1 {
+            for c in -1..=1 {
+                if r == 0 && c == 0 {
                     continue;
                 }
-                occupancy += match self.at(r, c) {
+                occupancy += match self.find_first(row, col, r, c, steps) {
                     Some(x) => if x == '#' { 1 } else { 0 },
                     None => 0,
                 }
@@ -65,14 +75,14 @@ impl Field {
         occupancy
     }
 
-    fn step(&self) -> Option<Field> {
+    fn step(&self, directional_steps: usize, occupancy_limit: usize) -> Option<Field> {
         let mut new = self.data.clone();
         let mut idx = 0;
         for i in 0..self.rows {
             for j in 0..self.cols {
-                new[idx] = match self.at(i, j).unwrap() {
-                    '#' => if self.count_occupancy_at(i, j) >= 4 { 'L' } else { '#' },
-                    'L' => if self.count_occupancy_at(i, j) == 0 { '#' } else { 'L' },
+                new[idx] = match self.at(i as isize, j as isize).unwrap() {
+                    '#' => if self.count_occupancy_at(i, j, directional_steps) >= occupancy_limit { 'L' } else { '#' },
+                    'L' => if self.count_occupancy_at(i, j, directional_steps) == 0 { '#' } else { 'L' },
                     '.' => '.',
                     _ => panic!("WAAAH!")
                 };
@@ -92,9 +102,20 @@ impl Field {
 }
 
 fn part1(field: &Field) -> usize {
-    let mut field = field.step().unwrap();
+    let mut field = field.step(1, 4).unwrap();
     loop {
-        let new_field = field.step();
+        let new_field = field.step(1, 4);
+        if new_field.is_none() {
+            return field.total_occupancy();
+        }
+        field = new_field.unwrap();
+    }
+}
+
+fn part2(field: &Field) -> usize {
+    let mut field = field.step(100, 5).unwrap();
+    loop {
+        let new_field = field.step(100, 5);
         if new_field.is_none() {
             return field.total_occupancy();
         }
@@ -106,5 +127,6 @@ fn main() -> Result<(), Error> {
     let field = Field::parse("input.txt")?;
     println!("Field of {} x {} read", field.cols, field.rows);
     println!("Total occupied seats in part 1: {}", part1(&field));
+    println!("Total occupied seats in part 2: {}", part2(&field));
     Ok(())
 }

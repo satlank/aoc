@@ -1,0 +1,3 @@
+At 1008713 we have 68 active ids
+Part1 result: 3269
+Part2 result: 672754131923874

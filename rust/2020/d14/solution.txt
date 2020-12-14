@@ -1,0 +1,4 @@
+Read 577 commands
+[Mask("0000011011111X1001100X0001X1001100X0"), Mem(43805, 6934)]
+Sum of all values in memory after completion: 10035335144067
+Sum of all values in memory after completion v2: 3817372618036

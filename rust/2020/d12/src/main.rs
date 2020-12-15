@@ -1,5 +1,5 @@
-use std::fs::File;
 use std::convert::AsRef;
+use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
 
 #[macro_use]
@@ -13,7 +13,7 @@ enum Op {
     SOUTH(i16),
     FWD(i16),
     LEFT(i16),
-    RIGHT(i16)
+    RIGHT(i16),
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -35,7 +35,7 @@ impl Op {
             'F' => Op::FWD(value),
             'L' => Op::LEFT(value),
             'R' => Op::RIGHT(value),
-            _ => panic!("Huh")
+            _ => panic!("Huh"),
         })
     }
 }
@@ -48,7 +48,11 @@ impl AsRef<Op> for Op {
 
 impl Loc {
     fn new() -> Loc {
-        Loc {x: 0, y: 0, bearing: 90}
+        Loc {
+            x: 0,
+            y: 0,
+            bearing: 90,
+        }
     }
 
     fn apply<O: AsRef<Op>>(&mut self, op: O) {
@@ -59,14 +63,12 @@ impl Loc {
             Op::SOUTH(x) => self.y -= x,
             Op::RIGHT(x) => self.bearing = (self.bearing + x) % 360,
             Op::LEFT(x) => self.bearing = (self.bearing - x + 360) % 360,
-            Op::FWD(x) => {
-                match self.bearing {
-                    0 => self.y += x,
-                    90 => self.x += x,
-                    180 => self.y -= x,
-                    270 => self.x -= x,
-                    _ => {panic!("Waaah!")}
-                }
+            Op::FWD(x) => match self.bearing {
+                0 => self.y += x,
+                90 => self.x += x,
+                180 => self.y -= x,
+                270 => self.x -= x,
+                _ => panic!("Waaah!"),
             },
         }
     }
@@ -86,7 +88,12 @@ struct Loc2 {
 
 impl Loc2 {
     fn new() -> Loc2 {
-        Loc2 {x: 0, y: 0, waypoint_x: 10, waypoint_y: 1}
+        Loc2 {
+            x: 0,
+            y: 0,
+            waypoint_x: 10,
+            waypoint_y: 1,
+        }
     }
 
     fn apply<O: AsRef<Op>>(&mut self, op: O) {
@@ -95,48 +102,44 @@ impl Loc2 {
             Op::NORTH(x) => self.waypoint_y += x,
             Op::WEST(x) => self.waypoint_x -= x,
             Op::SOUTH(x) => self.waypoint_y -= x,
-            Op::RIGHT(x) => {
-                match x {
-                    90 => {
-                        let tmp = self.waypoint_x;
-                        self.waypoint_x = self.waypoint_y;
-                        self.waypoint_y = -tmp;
-                    },
-                    180 => {
-                        self.waypoint_x = -self.waypoint_x;
-                        self.waypoint_y = -self.waypoint_y;
-                    },
-                    270 => {
-                        let tmp = self.waypoint_x;
-                        self.waypoint_x = -self.waypoint_y;
-                        self.waypoint_y = tmp;
-                    },
-                    _ => panic!("Waaah!"),
+            Op::RIGHT(x) => match x {
+                90 => {
+                    let tmp = self.waypoint_x;
+                    self.waypoint_x = self.waypoint_y;
+                    self.waypoint_y = -tmp;
                 }
+                180 => {
+                    self.waypoint_x = -self.waypoint_x;
+                    self.waypoint_y = -self.waypoint_y;
+                }
+                270 => {
+                    let tmp = self.waypoint_x;
+                    self.waypoint_x = -self.waypoint_y;
+                    self.waypoint_y = tmp;
+                }
+                _ => panic!("Waaah!"),
             },
-            Op::LEFT(x) => {
-                match x {
-                    90 => {
-                        let tmp = self.waypoint_x;
-                        self.waypoint_x = -self.waypoint_y;
-                        self.waypoint_y = tmp;
-                    },
-                    180 => {
-                        self.waypoint_x = -self.waypoint_x;
-                        self.waypoint_y = -self.waypoint_y;
-                    },
-                    270 => {
-                        let tmp = self.waypoint_x;
-                        self.waypoint_x = self.waypoint_y;
-                        self.waypoint_y = -tmp;
-                    },
-                    _ => panic!("Waaah!"),
+            Op::LEFT(x) => match x {
+                90 => {
+                    let tmp = self.waypoint_x;
+                    self.waypoint_x = -self.waypoint_y;
+                    self.waypoint_y = tmp;
                 }
+                180 => {
+                    self.waypoint_x = -self.waypoint_x;
+                    self.waypoint_y = -self.waypoint_y;
+                }
+                270 => {
+                    let tmp = self.waypoint_x;
+                    self.waypoint_x = self.waypoint_y;
+                    self.waypoint_y = -tmp;
+                }
+                _ => panic!("Waaah!"),
             },
             Op::FWD(x) => {
                 self.x += x * self.waypoint_x;
                 self.y += x * self.waypoint_y;
-            },
+            }
         }
     }
 

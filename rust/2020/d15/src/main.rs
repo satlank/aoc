@@ -1,24 +1,26 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
-use std::collections::HashMap;
 
 fn read<R: Read>(io: R) -> Result<Vec<u32>, Error> {
     let br = BufReader::new(io);
     let line = br.lines().next().unwrap()?;
-    line
-        .split(",")
-        .map(|i| i.parse::<u32>().map_err(|e| Error::new(ErrorKind::InvalidData, e)))
+    line.split(",")
+        .map(|i| {
+            i.parse::<u32>()
+                .map_err(|e| Error::new(ErrorKind::InvalidData, e))
+        })
         .collect()
 }
 
 fn find_number(vec: &[u32], turn_limit: u32) -> u32 {
-    let mut history = vec[0..vec.len()-1]
+    let mut history = vec[0..vec.len() - 1]
         .iter()
         .enumerate()
-        .map(|(idx, val)| (*val, ((idx+1) as u32, 0u32)))
-        .collect::<HashMap<u32,(u32, u32)>>();
+        .map(|(idx, val)| (*val, ((idx + 1) as u32, 0u32)))
+        .collect::<HashMap<u32, (u32, u32)>>();
     let mut turn = vec.len() as u32 + 1;
-    let mut last = vec[vec.len()-1];
+    let mut last = vec[vec.len() - 1];
     loop {
         let prev_index = history.get(&last);
         let new_index = match prev_index {
@@ -27,7 +29,7 @@ fn find_number(vec: &[u32], turn_limit: u32) -> u32 {
         };
         let number = match prev_index {
             Some(_) => new_index.0 - new_index.1,
-            None => 0
+            None => 0,
         };
         history.insert(last, new_index);
         if turn == turn_limit {

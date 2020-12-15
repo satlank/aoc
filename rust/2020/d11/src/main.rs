@@ -31,10 +31,7 @@ impl Field {
     }
 
     fn total_occupancy(&self) -> usize {
-        self.data
-            .iter()
-            .filter(|&c| *c == '#')
-            .count()
+        self.data.iter().filter(|&c| *c == '#').count()
     }
 
     fn at(&self, row: isize, col: isize) -> Option<char> {
@@ -45,11 +42,22 @@ impl Field {
         }
     }
 
-    fn find_first(&self, row: usize, col: usize, row_inc: isize, col_inc: isize, steps: usize) -> Option<char> {
+    fn find_first(
+        &self,
+        row: usize,
+        col: usize,
+        row_inc: isize,
+        col_inc: isize,
+        steps: usize,
+    ) -> Option<char> {
         let mut step: isize = 1;
         loop {
             match self.at(row as isize + step * row_inc, col as isize + step * col_inc) {
-                Some(x) => if x != '.' { return Some(x) },
+                Some(x) => {
+                    if x != '.' {
+                        return Some(x);
+                    }
+                }
                 None => return None,
             };
             step += 1;
@@ -67,7 +75,13 @@ impl Field {
                     continue;
                 }
                 occupancy += match self.find_first(row, col, r, c, steps) {
-                    Some(x) => if x == '#' { 1 } else { 0 },
+                    Some(x) => {
+                        if x == '#' {
+                            1
+                        } else {
+                            0
+                        }
+                    }
                     None => 0,
                 }
             }
@@ -81,10 +95,22 @@ impl Field {
         for i in 0..self.rows {
             for j in 0..self.cols {
                 new[idx] = match self.at(i as isize, j as isize).unwrap() {
-                    '#' => if self.count_occupancy_at(i, j, directional_steps) >= occupancy_limit { 'L' } else { '#' },
-                    'L' => if self.count_occupancy_at(i, j, directional_steps) == 0 { '#' } else { 'L' },
+                    '#' => {
+                        if self.count_occupancy_at(i, j, directional_steps) >= occupancy_limit {
+                            'L'
+                        } else {
+                            '#'
+                        }
+                    }
+                    'L' => {
+                        if self.count_occupancy_at(i, j, directional_steps) == 0 {
+                            '#'
+                        } else {
+                            'L'
+                        }
+                    }
                     '.' => '.',
-                    _ => panic!("WAAAH!")
+                    _ => panic!("WAAAH!"),
                 };
                 idx += 1;
             }
@@ -93,7 +119,7 @@ impl Field {
             Some(Field {
                 data: new,
                 cols: self.cols,
-                rows: self.rows
+                rows: self.rows,
             })
         } else {
             None

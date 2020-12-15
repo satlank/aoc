@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
-use std::collections::HashMap;
 
 #[macro_use]
 extern crate scan_fmt;
@@ -15,13 +15,15 @@ impl Command {
     fn parse<S: AsRef<str>>(cmd: S) -> Result<Command, Error> {
         let cmd = cmd.as_ref();
         if cmd[..4] == *"mask" {
-            let mask = scan_fmt!(cmd, "mask = {}", String).map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
+            let mask = scan_fmt!(cmd, "mask = {}", String)
+                .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
             return Ok(Command::Mask(mask));
         } else {
-            let (loc, val) = scan_fmt!(cmd, "mem[{d}] = {d}", u64, u64).map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
+            let (loc, val) = scan_fmt!(cmd, "mem[{d}] = {d}", u64, u64)
+                .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
             return Ok(Command::Mem(loc, val));
         }
-   }
+    }
 }
 
 struct VirtualMachine {
@@ -36,15 +38,17 @@ fn mask_value(mask: &String, val: u64) -> u64 {
             .chars()
             .map(|c| if c != '1' { '0' } else { '1' })
             .collect::<String>(),
-        2
-    ).unwrap();
+        2,
+    )
+    .unwrap();
     let mask2 = u64::from_str_radix(
         &mask
             .chars()
             .map(|c| if c != '0' { '1' } else { '0' })
             .collect::<String>(),
-        2
-    ).unwrap();
+        2,
+    )
+    .unwrap();
     !(!(val | mask1) | !mask2)
 }
 
@@ -53,7 +57,7 @@ fn mask_addr(mask: &String, addr: u64) -> Vec<u64> {
     addrs.push(String::new());
     let str_addr = format!("{:036b}", addr);
     for i in 0..mask.len() {
-        if &mask[i..i+1] == "X" {
+        if &mask[i..i + 1] == "X" {
             let mut new_addrs: Vec<String> = Vec::new();
             for a in &addrs {
                 new_addrs.push(format!("{}0", a));
@@ -62,11 +66,16 @@ fn mask_addr(mask: &String, addr: u64) -> Vec<u64> {
             addrs = new_addrs;
         } else {
             for a in &mut addrs {
-                a.push(if &mask[i..i+1] == "1" { '1' } else {str_addr.chars().nth(i).unwrap()});
+                a.push(if &mask[i..i + 1] == "1" {
+                    '1'
+                } else {
+                    str_addr.chars().nth(i).unwrap()
+                });
             }
         }
     }
-    addrs.iter()
+    addrs
+        .iter()
         .map(|a| u64::from_str_radix(a, 2).unwrap())
         .collect()
 }
@@ -76,7 +85,7 @@ impl VirtualMachine {
         VirtualMachine {
             mask: format!("{:036b}", 0),
             memory: HashMap::new(),
-            version: version
+            version: version,
         }
     }
 
@@ -84,7 +93,7 @@ impl VirtualMachine {
         match cmd {
             Command::Mask(str_mask) => {
                 self.mask = str_mask.to_string();
-            },
+            }
             Command::Mem(addr, val) => {
                 if self.version == 1 {
                     self.memory.insert(*addr, mask_value(&self.mask, *val));
@@ -94,7 +103,7 @@ impl VirtualMachine {
                         self.memory.insert(a, *val);
                     }
                 }
-            },
+            }
         }
     }
 }
@@ -102,7 +111,9 @@ impl VirtualMachine {
 fn read<R: Read>(io: R) -> Result<Vec<Command>, Error> {
     let br = BufReader::new(io);
     br.lines()
-        .map(|line| line.and_then(|v| Command::parse(v).map_err(|e| Error::new(ErrorKind::InvalidData, e))))
+        .map(|line| {
+            line.and_then(|v| Command::parse(v).map_err(|e| Error::new(ErrorKind::InvalidData, e)))
+        })
         .collect()
 }
 
@@ -126,8 +137,14 @@ fn main() -> Result<(), Error> {
     let vec = read(File::open("input.txt")?)?;
     println!("Read {} commands", vec.len());
     println!("{:?}", &vec[..2]);
-    println!("Sum of all values in memory after completion: {}", part1(&vec));
-    println!("Sum of all values in memory after completion v2: {}", part2(&vec));
+    println!(
+        "Sum of all values in memory after completion: {}",
+        part1(&vec)
+    );
+    println!(
+        "Sum of all values in memory after completion v2: {}",
+        part2(&vec)
+    );
     Ok(())
 }
 

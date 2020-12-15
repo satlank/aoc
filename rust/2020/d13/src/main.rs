@@ -5,17 +5,16 @@ fn read<R: Read>(io: R) -> Result<(u64, Vec<Option<u64>>), Error> {
     let mut br = BufReader::new(io);
     let mut line = String::new();
     br.read_line(&mut line)?;
-    let time = line[..line.len()-1]
+    let time = line[..line.len() - 1]
         .parse::<u64>()
         .map_err(|e| Error::new(ErrorKind::InvalidData, e))?;
     let mut line = String::new();
     br.read_line(&mut line)?;
-    let arg = line[..line.len()-1].split(",")
-            .map(|i| i.parse::<u64>().ok())
-            .collect();
-    Ok((
-        time, arg
-    ))
+    let arg = line[..line.len() - 1]
+        .split(",")
+        .map(|i| i.parse::<u64>().ok())
+        .collect();
+    Ok((time, arg))
 }
 
 fn part1(time: u64, vec: &[Option<u64>]) -> u64 {
@@ -23,7 +22,7 @@ fn part1(time: u64, vec: &[Option<u64>]) -> u64 {
     loop {
         for id in vec.iter() {
             if id.is_some() && depart_time % id.unwrap() == 0 {
-                return id.unwrap() * (depart_time - time)
+                return id.unwrap() * (depart_time - time);
             }
         }
         depart_time += 1;
@@ -43,7 +42,10 @@ fn part2(vec: &[Option<u64>]) -> u64 {
     let mut time = first;
     let mut idx_match = 0;
     let mut period = 1;
-    let max_period = vec.iter().filter(|f| f.is_some()).fold(1, |acc, val| acc * val.unwrap());
+    let max_period = vec
+        .iter()
+        .filter(|f| f.is_some())
+        .fold(1, |acc, val| acc * val.unwrap());
     loop {
         for i in idx_match..vec.len() {
             if departs_in(i as u64, time, vec[i]) {
@@ -53,8 +55,7 @@ fn part2(vec: &[Option<u64>]) -> u64 {
             } else {
                 break;
             }
-            if i > idx_match {
-            }
+            if i > idx_match {}
             idx_match = i;
         }
         if period == max_period {

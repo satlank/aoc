@@ -1,0 +1,3 @@
+Read 6 numbers
+The 2020th number is 1194
+The 30000000th number is 48710

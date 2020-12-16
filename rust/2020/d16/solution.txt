@@ -1,0 +1,3 @@
+20 rules, 238 nearby tickets
+Ticket error rate: 20013
+Multiplied departure values: 5977293343129

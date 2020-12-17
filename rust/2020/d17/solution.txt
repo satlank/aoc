@@ -1,0 +1,18 @@
+min: (0, 0, 0) max: (7, 7, 0) active: 31
+Step 0: min: (0, 0, 0) max: (7, 7, 0) active: 31
+.#.#..##
+..#....#
+##.####.
+...####.
+#.##..##
+#...##..
+...##.##
+#...#.#.
+
+Step 1: min: (-1, -1, -1) max: (8, 8, 1) active: 54
+Step 2: min: (-2, -2, -2) max: (9, 9, 2) active: 64
+Step 3: min: (-3, -3, -3) max: (10, 10, 3) active: 113
+Step 4: min: (-4, -4, -4) max: (11, 11, 4) active: 141
+Step 5: min: (-5, -5, -5) max: (12, 12, 5) active: 228
+Step 6: min: (-6, -6, -6) max: (13, 13, 6) active: 317
+Active after 6 steps: 317

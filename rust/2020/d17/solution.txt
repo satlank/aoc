@@ -1,5 +1,6 @@
-min: (0, 0, 0) max: (7, 7, 0) active: 31
-Step 0: min: (0, 0, 0) max: (7, 7, 0) active: 31
+min: (0, 0, 0, 0) max: (7, 7, 0, 0) active: 31
+Step 0: min: (0, 0, 0, 0) max: (7, 7, 0, 0) active: 31
+z = 0, w = 0
 .#.#..##
 ..#....#
 ##.####.
@@ -9,10 +10,33 @@ Step 0: min: (0, 0, 0) max: (7, 7, 0) active: 31
 ...##.##
 #...#.#.
 
-Step 1: min: (-1, -1, -1) max: (8, 8, 1) active: 54
-Step 2: min: (-2, -2, -2) max: (9, 9, 2) active: 64
-Step 3: min: (-3, -3, -3) max: (10, 10, 3) active: 113
-Step 4: min: (-4, -4, -4) max: (11, 11, 4) active: 141
-Step 5: min: (-5, -5, -5) max: (12, 12, 5) active: 228
-Step 6: min: (-6, -6, -6) max: (13, 13, 6) active: 317
-Active after 6 steps: 317
+
+Step 1: min: (0, 0, -1, 0) max: (7, 7, 1, 0) active: 54
+Step 2: min: (-1, -1, -2, 0) max: (8, 8, 2, 0) active: 64
+Step 3: min: (-1, -2, -3, 0) max: (9, 8, 3, 0) active: 113
+Step 4: min: (-2, -3, -4, 0) max: (9, 9, 4, 0) active: 141
+Step 5: min: (-3, -4, -5, 0) max: (10, 10, 5, 0) active: 228
+Step 6: min: (-4, -5, -5, 0) max: (11, 11, 5, 0) active: 317
+Active after 6 steps in 3d: 317
+
+
+
+Step 0: min: (0, 0, 0, 0) max: (7, 7, 0, 0) active: 31
+z = 0, w = 0
+.#.#..##
+..#....#
+##.####.
+...####.
+#.##..##
+#...##..
+...##.##
+#...#.#.
+
+
+Step 1: min: (0, 0, -1, -1) max: (7, 7, 1, 1) active: 156
+Step 2: min: (-1, -1, -2, -2) max: (8, 8, 2, 2) active: 176
+Step 3: min: (-1, -2, -3, -3) max: (8, 8, 3, 3) active: 644
+Step 4: min: (-2, -3, -4, -4) max: (9, 9, 4, 4) active: 532
+Step 5: min: (-3, -4, -5, -5) max: (10, 10, 5, 5) active: 2464
+Step 6: min: (-4, -5, -6, -6) max: (11, 10, 6, 6) active: 1692
+Active after 6 steps in 4d: 1692

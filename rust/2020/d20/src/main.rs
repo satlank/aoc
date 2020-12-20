@@ -116,7 +116,7 @@ fn read<R: Read>(io: R) -> Vec<Tile> {
     res
 }
 
-fn part1(tiles: &[Tile]) -> usize {
+fn get_borders(tiles: &[Tile]) -> HashMap<usize, HashSet<usize>> {
     let mut borders = HashMap::new(); // border int -> tile id
     for tile in tiles.iter() {
         for border in tile.borders() {
@@ -130,6 +130,10 @@ fn part1(tiles: &[Tile]) -> usize {
         "Border pairs: {}",
         borders.iter().filter(|(_, val)| val.len() == 2).count()
     );
+    borders
+}
+
+fn get_structure(borders: HashMap<usize, HashSet<usize>>) -> HashMap<usize, Vec<(usize, usize)>> {
     let mut structure: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
     for (tile_id, link) in borders
         .iter()
@@ -154,6 +158,12 @@ fn part1(tiles: &[Tile]) -> usize {
             structure.insert(tile_id, vec![link]);
         }
     }
+    structure
+}
+
+fn part1(tiles: &[Tile]) -> usize {
+    let borders = get_borders(tiles);
+    let structure = get_structure(borders);
     structure
         .iter()
         .filter(|(_, v)| v.len() == 4)

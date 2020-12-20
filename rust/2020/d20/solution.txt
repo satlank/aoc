@@ -1,0 +1,3 @@
+Total of 144 tiles
+Border pairs: 528
+Product of corner tile ids: 7492183537913

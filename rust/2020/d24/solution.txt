@@ -1,0 +1,3 @@
+Read 492 directions
+Number of black tiles: 436
+Number of black tiles after 100 days: 4133

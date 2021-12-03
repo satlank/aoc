@@ -1,0 +1,2 @@
+gamma rate: 3527,  epsilon rate: 568  -->  2003336
+o2 generator rate: 2547,  co2 scrubbing rate: 737  -->  1877139

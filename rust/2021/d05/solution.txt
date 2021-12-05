@@ -1,0 +1,2 @@
+At least two lines overlap in 8060 points (only horizontal/vertical lines)
+At least two lines overlap in 21577 points (all lines)

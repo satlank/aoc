@@ -1,0 +1,2 @@
+Number of times 1, 4, 7, or 8 appear: 303
+961734

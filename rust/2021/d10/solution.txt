@@ -1,0 +1,2 @@
+Total score of syntax errors: 268845
+Total score of autocomplete: 4038824534

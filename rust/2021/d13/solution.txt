@@ -1,0 +1,7 @@
+Visible dots after first fold: 827
+XXXX  XX  X  X X  X XXX  XXXX  XX  XXX  
+X    X  X X  X X X  X  X X    X  X X  X 
+XXX  X  X XXXX XX   X  X XXX  X    X  X 
+X    XXXX X  X X X  XXX  X    X    XXX  
+X    X  X X  X X X  X X  X    X  X X    
+XXXX X  X X  X X  X X  X XXXX  XX  X    

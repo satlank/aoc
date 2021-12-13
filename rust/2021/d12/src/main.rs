@@ -60,20 +60,11 @@ fn build_tree(connections: &[(Cave, Cave)]) -> HashMap<Cave, HashSet<Cave>> {
 
 fn can_add(path: &[Cave], cave: &Cave) -> bool {
     if !path.contains(&cave) {
-        //println!("{:?} can be added to {:?}", cave, path);
         true
     } else {
         match cave {
-            Cave::Large(_) => {
-                //println!("{:?} can be added to {:?}", cave, path);
-                true
-            }
-            _ => {
-                if path.last().unwrap() == &Cave::Large("HN".to_string()) {
-                    println!("{:?} can NOT be added to {:?}", cave, path);
-                }
-                false
-            }
+            Cave::Large(_) => true,
+            _ => false,
         }
     }
 }

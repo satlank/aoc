@@ -1,0 +1,2 @@
+Result for part 1: 2509
+Result for part 2: 2827627697643

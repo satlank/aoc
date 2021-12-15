@@ -1,0 +1,2 @@
+Shortest path length is: 458
+Shortest path length is in the real cave is: 2800

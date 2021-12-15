@@ -1,0 +1,2 @@
+Total paths through the caves: 5756
+Total paths through the caves when visiting a single small cave twice: 144603

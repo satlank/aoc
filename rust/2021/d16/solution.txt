@@ -1,0 +1,2 @@
+Sum of all versions is: 860
+Evaluated message is: 470949537659

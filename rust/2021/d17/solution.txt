@@ -1,0 +1,2 @@
+Mx y height to reach target: 35511
+Number of speeds hitting the target: 3282

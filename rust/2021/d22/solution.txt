@@ -1,0 +1,2 @@
+Result of part 1: 581108
+Result of part 2: 1325473814582641

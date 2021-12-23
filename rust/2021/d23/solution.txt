@@ -1,2 +1,6 @@
+Found new best: 15131
+Found new best: 15117
+Found new best: 15109
 Result of part 1: 15109
+Found new best: 53751
 Result of part 2: 53751

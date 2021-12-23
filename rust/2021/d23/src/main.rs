@@ -56,7 +56,11 @@ fn read<R: Read>(io: R) -> Burrow<2> {
     }
 }
 
-fn solve<const D: usize>(burrow: &Burrow<D>, current_cost: usize) -> Option<usize> {
+fn solve<const D: usize>(
+    burrow: &Burrow<D>,
+    current_cost: usize,
+    mut current_min: usize,
+) -> Option<usize> {
     if burrow.is_complete() {
         return Some(current_cost);
     }
@@ -66,7 +70,18 @@ fn solve<const D: usize>(burrow: &Burrow<D>, current_cost: usize) -> Option<usiz
     }
     moves
         .iter()
-        .map(|m| solve(&m.1, m.0 + current_cost))
+        .map(|m| {
+            let res = if m.0 + current_cost > current_min {
+                None
+            } else {
+                solve(&m.1, m.0 + current_cost, current_min)
+            };
+            if current_cost == 0 && res.is_some() && current_min > res.unwrap() {
+                current_min = res.unwrap();
+                println!("Found new best: {}", current_min);
+            }
+            res
+        })
         .flatten()
         .min()
 }
@@ -90,12 +105,12 @@ fn upcast(small: &Burrow<2>) -> Burrow<4> {
 }
 
 fn part_1(burrow: &Burrow<2>) -> usize {
-    solve(burrow, 0).unwrap()
+    solve(burrow, 0, usize::MAX).unwrap()
 }
 
 fn part_2(burrow: &Burrow<2>) -> usize {
     let real_burrow = upcast(burrow);
-    solve(&real_burrow, 0).unwrap()
+    solve(&real_burrow, 0, usize::MAX).unwrap()
 }
 
 fn main() {

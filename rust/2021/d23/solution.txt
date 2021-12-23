@@ -1,0 +1,2 @@
+Result of part 1: 15109
+Result of part 2: 53751

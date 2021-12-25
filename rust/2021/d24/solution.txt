@@ -1,0 +1,8 @@
+[14, 381, 9917, 381, 14, 379, 14, 0, 10, 277, 10, 282, 10, 0]
+[None, None, None, Some(9), Some(7), None, Some(1), Some(9), None, None, Some(3), None, Some(8), Some(5)]
+[14, 17, 11, 17, 14, 15, 14, 0, 10, 17, 10, 22, 10, 0]
+Result of part 1: 79197919993985
+[8, 219, 5705, 219, 8, 223, 8, 0, 6, 171, 6, 171, 6, 0]
+[None, None, None, Some(9), Some(1), None, Some(1), Some(3), None, None, Some(1), None, Some(1), Some(1)]
+[8, 11, 11, 11, 8, 15, 8, 0, 6, 15, 6, 15, 6, 0]
+Result of part 2: 13191913571211

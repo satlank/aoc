@@ -86,8 +86,8 @@ fn is_point_in_segment(ps1: &Point, ps2: &Point, p: &Point) -> bool {
 }
 
 fn find_path_lengths(path: &Vec<Point>, points: &Vec<Point>) -> Vec<i32> {
-    let mut plens : Vec<i32> = points.iter().map(|p| 0).collect();
-    let mut done : Vec<bool> = points.iter().map(|p| false).collect();
+    let mut plens : Vec<i32> = points.iter().map(|_| 0).collect();
+    let mut done : Vec<bool> = points.iter().map(|_| false).collect();
     for i in 0..path.len() - 1 {
         let ps1 = &path[i];
         let ps2 = &path[i+1];

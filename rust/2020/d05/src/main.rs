@@ -25,6 +25,7 @@ impl BPass {
         usize::from_str_radix(&bin, 2).unwrap()
     }
 
+    #[cfg(test)]
     fn resolve(&self) -> (usize, usize) {
         let id = self.id();
         ((id & 1017) >> 3, id & 7)

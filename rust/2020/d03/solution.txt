@@ -1,0 +1,2 @@
+Collisions in part 1: 169
+Collisions in part 2: 7560370818 

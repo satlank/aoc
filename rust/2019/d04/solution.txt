@@ -1,0 +1,2 @@
+Number of valid guesses (part 1): 966
+Number of valid guesses (part 2): 628

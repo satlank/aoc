@@ -1,0 +1,3 @@
+Read 779 instructions
+Manhattan distance part 1: 845
+Manhattan distance part 2: 27016

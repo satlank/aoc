@@ -83,8 +83,6 @@ fn main() {
     let santa_path = get_path("SAN".to_string(), &map);
     let orbital_transfers = get_orbital_transfers(&my_path, &santa_path);
     println!("Orbital Transfers: {}", orbital_transfers);
-
-    println!("{:?}", map);
 }
 
 

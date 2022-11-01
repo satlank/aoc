@@ -1,0 +1,2 @@
+Closest intersection Some(303)
+Min combined steps: Some(11222)

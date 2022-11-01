@@ -161,7 +161,6 @@ fn part1(ops: &[Op]) -> u16 {
     let mut loc = Loc::new();
     for op in ops {
         loc.apply(op);
-        println!("{:?}", loc);
     }
     loc.manhattan_distance()
 }
@@ -170,7 +169,6 @@ fn part2(ops: &[Op]) -> u16 {
     let mut loc = Loc2::new();
     for op in ops {
         loc.apply(op);
-        println!("{:?}", loc);
     }
     loc.manhattan_distance()
 }

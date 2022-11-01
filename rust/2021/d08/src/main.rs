@@ -2,7 +2,7 @@
 
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 #[macro_use]
 extern crate scan_fmt;

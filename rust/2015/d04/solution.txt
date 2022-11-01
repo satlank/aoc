@@ -1,0 +1,2 @@
+Lowest number to get an MD5 hash with at least 5 leading zeroes is: 254575
+Lowest number to get an MD5 hash with at least 6 leading zeroes is: 1038736

@@ -1,0 +1,2 @@
+Sum of the priorities of the misplaced items: 7568
+Sum of priorities of badges: 2780

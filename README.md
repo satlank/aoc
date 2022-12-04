@@ -12,3 +12,9 @@ necessarily (well, unlikely) very clean code.
 Generating fresh rust project for each day by
 
     cargo new --bin --vcs none --edition 2018 d01
+
+## Locking
+
+The input files are encrypted, but can be kept locally unencrypted as that is what the programs expect.  To encrypt run
+
+    ./lock.bash <GPG RECIPIENT>

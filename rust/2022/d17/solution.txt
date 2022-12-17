@@ -1,0 +1,6 @@
+Part 1: 3188
+The cycle length is 1745 rocks and there are now 999999997245 rocks left to drop..
+..which are 573065901 cycles with 2778 rows each
+..so take our current height of 4363 and add the cycles..
+..and add 1 because we start counting at 0
+Part 2: 1591977077342

@@ -126,10 +126,13 @@ fn can_build_geode_bot(state: &State, blueprint: &Blueprint) -> bool {
 }
 
 impl State {
-    fn update_resources(&mut self) {
-        self.ore += self.ore_bots;
-        self.clay += self.clay_bots;
-        self.obsidian += self.obsidian_bots;
+    fn update_resources(&mut self, bp: &Blueprint) {
+        // Not really sure about the factor 4 in clamping here, intention is to get more usage of
+        // the memoisation cache to roll-up everything above a certain resource level; the 4 is
+        // tuned for the example and my input
+        self.ore = (self.ore + self.ore_bots).clamp(0, 4 * bp.max_ore_cost() - self.ore_bots);
+        self.clay = (self.clay + self.clay_bots).clamp(0, 4 * bp.max_clay_cost() - self.clay_bots);
+        self.obsidian = (self.obsidian + self.obsidian_bots).clamp(0, 4 * bp.max_obsidian_cost() - self.obsidian_bots);
         self.geode += self.geode_bots;
     }
 
@@ -138,7 +141,7 @@ impl State {
         if can_build_geode_bot(self, bp) {
             // Always build a geode bot if possible
             let mut new_state = self.clone();
-            new_state.update_resources();
+            new_state.update_resources(bp);
             new_state.geode_bots += 1;
             new_state.ore -= bp.geode_bot.ore;
             new_state.obsidian -= bp.geode_bot.obsidian;
@@ -146,7 +149,7 @@ impl State {
         } else {
             if can_build_obsidian_bot(self, bp) {
                 let mut new_state = self.clone();
-                new_state.update_resources();
+                new_state.update_resources(bp);
                 new_state.obsidian_bots += 1;
                 new_state.ore -= bp.obsidian_bot.ore;
                 new_state.clay -= bp.obsidian_bot.clay;
@@ -154,20 +157,20 @@ impl State {
             }
             if can_build_clay_bot(self, bp) {
                 let mut new_state = self.clone();
-                new_state.update_resources();
+                new_state.update_resources(bp);
                 new_state.clay_bots += 1;
                 new_state.ore -= bp.clay_bot.ore;
                 res.push(new_state);
             }
             if can_build_ore_bot(self, bp) {
                 let mut new_state = self.clone();
-                new_state.update_resources();
+                new_state.update_resources(bp);
                 new_state.ore_bots += 1;
                 new_state.ore -= bp.ore_bot.ore;
                 res.push(new_state);
             }
             let mut new_state = self.clone();
-            new_state.update_resources();
+            new_state.update_resources(bp);
             res.push(new_state)
         }
 
@@ -195,7 +198,7 @@ fn step(max_depth: usize, depth: usize, mut state: State, bp: Blueprint) -> Stat
     //println!();
     //println!("Step {},  State: {:?}", depth, state);
     if depth == max_depth {
-        state.update_resources();
+        state.update_resources(&bp);
         return state;
     }
 
@@ -257,6 +260,8 @@ mod tests {
             }
         );
         assert_eq!(part_1(&input), 1 * 9 + 2 * 12);
-        assert_eq!(part_2(&input), 56 * 62);
+        let a = run_blueprint(31, &input[0]);
+        let b = run_blueprint(31, &input[1]);
+        assert_eq!(a * b, 56 * 62);
     }
 }

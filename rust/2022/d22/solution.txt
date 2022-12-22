@@ -1,0 +1,6 @@
+Starting at row 1, column 51 facing >
+Final position is row 76, column 83, facing >
+Part 1: 76332
+Starting at row 1, column 51 facing >
+Final position is row 144, column 3, facing >
+Part 2: 144012

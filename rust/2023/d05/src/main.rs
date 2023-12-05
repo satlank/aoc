@@ -12,6 +12,26 @@ struct RangedMapping {
     value: Range<usize>,
 }
 
+impl Ord for RangedMapping {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.key.start.cmp(&other.key.start)
+    }
+}
+
+impl PartialOrd for RangedMapping {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for RangedMapping {
+    fn eq(&self, other: &Self) -> bool {
+        self.key == other.key && self.value == other.value
+    }
+}
+
+impl Eq for RangedMapping {}
+
 impl From<&String> for RangedMapping {
     fn from(s: &String) -> Self {
         let mut parts = s.split_whitespace();
@@ -30,6 +50,14 @@ struct RangedMap {
     content: Vec<RangedMapping>,
 }
 
+impl From<&[String]> for RangedMap {
+    fn from(s: &[String]) -> Self {
+        let mut content = s[1..].iter().map(RangedMapping::from).collect::<Vec<_>>();
+        content.sort();
+        Self { content }
+    }
+}
+
 impl RangedMap {
     fn get(&self, key: usize) -> usize {
         for mapping in &self.content {
@@ -39,6 +67,46 @@ impl RangedMap {
             }
         }
         key
+    }
+
+    fn get_ranges(&self, ranges: &[Range<usize>]) -> Vec<Range<usize>> {
+        ranges
+            .iter()
+            .flat_map(|r| self.get_range(r.clone()))
+            .collect::<Vec<_>>()
+    }
+
+    fn get_range(&self, mut key_range: Range<usize>) -> Vec<Range<usize>> {
+        let mut result = Vec::new();
+        // self.content is sorted by key.start
+        for range in self.content.iter() {
+            if key_range.end <= range.key.start {
+                result.push(key_range);
+                return result;
+            }
+            if key_range.start >= range.key.end {
+                continue;
+            }
+            if key_range.start < range.key.start {
+                let before = range.key.start - key_range.start;
+                result.push(key_range.start..key_range.start + before);
+                key_range.start += before;
+            }
+            let offset = key_range.start - range.key.start;
+            let remaining_in_range = range.key.end - key_range.start;
+            let remapped_start = range.value.start + offset;
+            if offset + key_range.len() <= range.key.len() {
+                result.push(remapped_start..remapped_start + key_range.len());
+                return result;
+            } else {
+                result.push(remapped_start..remapped_start + remaining_in_range);
+                key_range.start += remaining_in_range;
+            }
+        }
+        if key_range.len() > 0 {
+            result.push(key_range);
+        }
+        result
     }
 }
 
@@ -51,13 +119,6 @@ struct Maps {
     light_to_temperature: RangedMap,
     temperature_to_humidity: RangedMap,
     humidity_to_location: RangedMap,
-}
-
-impl From<&[String]> for RangedMap {
-    fn from(s: &[String]) -> Self {
-        let content = s[1..].iter().map(RangedMapping::from).collect();
-        Self { content }
-    }
 }
 
 fn read<R: Read>(io: R) -> (Vec<usize>, Maps) {
@@ -149,23 +210,19 @@ fn part_1(seeds: &[usize], maps: &Maps) -> usize {
 }
 
 fn part_2(seeds: &[usize], maps: &Maps) -> usize {
-    seeds
+    let seeds = seeds
         .chunks(2)
         .map(|chunk| chunk[0]..chunk[0] + chunk[1])
-        .flat_map(|range| {
-            range.map(|s| {
-                let soil = maps.seed_to_soil.get(s);
-                let fertilizer = maps.soil_to_fertilizer.get(soil);
-                let water = maps.fertilizer_to_water.get(fertilizer);
-                let light = maps.water_to_light.get(water);
-                let temperature = maps.light_to_temperature.get(light);
-                let humidity = maps.temperature_to_humidity.get(temperature);
-                let location = maps.humidity_to_location.get(humidity);
-                location
-            })
-        })
-        .min()
-        .unwrap()
+        .collect::<Vec<_>>();
+    let soil = maps.seed_to_soil.get_ranges(&seeds);
+    let fertilizer = maps.soil_to_fertilizer.get_ranges(&soil);
+    let water = maps.fertilizer_to_water.get_ranges(&fertilizer);
+    let light = maps.water_to_light.get_ranges(&water);
+    let temperature = maps.light_to_temperature.get_ranges(&light);
+    let humidity = maps.temperature_to_humidity.get_ranges(&temperature);
+    let location = maps.humidity_to_location.get_ranges(&humidity);
+
+    location.iter().map(|r| r.start).min().unwrap()
 }
 
 fn main() {
@@ -198,5 +255,29 @@ mod tests {
         let (seeds, maps) = read(File::open("example1.txt").unwrap());
         assert_eq!(part_1(&seeds, &maps), 35);
         assert_eq!(part_2(&seeds, &maps), 46);
+    }
+
+    #[test]
+    fn range_selection() {
+        let map = RangedMap {
+            content: vec![
+                RangedMapping {
+                    key: 3..5,
+                    value: 0..2,
+                },
+                RangedMapping {
+                    key: 6..8,
+                    value: 12..14,
+                },
+            ],
+        };
+
+        assert_eq!(map.get_range(0..3), vec![0..3]);
+        assert_eq!(map.get_range(0..4), vec![0..3, 0..1]);
+        assert_eq!(map.get_range(3..4), vec![0..1]);
+        assert_eq!(map.get_range(4..6), vec![1..2, 5..6]);
+        assert_eq!(map.get_range(4..7), vec![1..2, 5..6, 12..13]);
+        assert_eq!(map.get_range(7..8), vec![13..14]);
+        assert_eq!(map.get_range(16..20), vec![16..20]);
     }
 }

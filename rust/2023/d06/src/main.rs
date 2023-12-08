@@ -22,11 +22,29 @@ fn read<R: Read>(io: R) -> (Vec<usize>, Vec<usize>) {
     (times, distances)
 }
 
+fn possible_times(t: usize, d: usize) -> usize {
+    assert!(t < 2usize.pow(53), "Not enough precision");
+    assert!(d < 2usize.pow(53), "Not enough precision");
+    let tf = t as f64;
+    let df = d as f64;
+    let min = (tf / 2.0 - (tf * tf / 4.0 - df).sqrt()).floor() as usize;
+    let max = (tf / 2.0 + (tf * tf / 4.0 - df).sqrt()).ceil() as usize;
+
+    // Deal with floating point, we've floor'ed the min and ceil'ed the max, so most
+    // likely have to add (subtract) 1 to the min (max) to get the real min (max).
+    // However the floor'ed/ceil'ed value might be the real min/max if we happend to land exactly
+    // on the min/max.
+    let real_min = if min * (t - min) <= d { min + 1 } else { min };
+    let real_max = if max * (t - max) <= d { max - 1 } else { max };
+
+    real_max - real_min + 1
+}
+
 fn part_1(times: &[usize], distances: &[usize]) -> usize {
     times
         .iter()
         .zip(distances.iter())
-        .map(|(t, d)| (0..*t).map(|x| x * (*t - x)).filter(|x| x > d).count())
+        .map(|(t, d)| possible_times(*t, *d))
         .product()
 }
 
@@ -47,10 +65,7 @@ fn part_2(times: &[usize], distances: &[usize]) -> usize {
         })
         .parse::<usize>()
         .unwrap();
-    (0..act_time)
-        .map(|x| x * (act_time - x))
-        .filter(|x| x > &act_dist)
-        .count()
+    possible_times(act_time, act_dist)
 }
 
 fn main() {

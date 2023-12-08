@@ -7,6 +7,8 @@ use std::{
     io::{BufRead, BufReader, Read},
 };
 
+use num::Integer;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(u8)]
 enum Direction {
@@ -160,34 +162,19 @@ impl Iterator for PathCycleIterator<'_> {
             if self.end_nodes_idx + 1 < self.cycle.before_cycle_start.len() {
                 self.end_nodes_idx += 1;
                 self.next = self.cycle.before_cycle_start[self.end_nodes_idx];
-                //println!("Moving to next end node: {}", self.next);
             } else {
                 self.next = self.cycle.after_cycle_start[0];
                 self.end_nodes_idx = 0;
-                //println!("Moving to first node of after-cycle: {}", self.next);
             }
         } else {
             let pos = self.cycle.after_cycle_start[self.end_nodes_idx];
             self.end_nodes_idx = (self.end_nodes_idx + 1) % self.cycle.after_cycle_start.len();
             let next_pos = self.cycle.after_cycle_start[self.end_nodes_idx];
             let incr = match next_pos.cmp(&pos) {
-                Ordering::Less => {
-                    
-                    ((next_pos + self.cycle.length) - pos) % self.cycle.length
-                }
+                Ordering::Less => ((next_pos + self.cycle.length) - pos) % self.cycle.length,
                 Ordering::Equal => self.cycle.length,
                 Ordering::Greater => next_pos - pos,
             };
-            /*
-            let incr = if next_pos < pos {
-                let tmp = ((next_pos + self.cycle.length) - pos) % self.cycle.length;
-                println!("Moving from {} to {} by {}", pos, next_pos, tmp);
-                tmp
-            } else {
-                println!("Moving from {} to {} by {}", pos, next_pos, next_pos - pos);
-                next_pos - pos
-            };
-            */
             self.next += incr;
         }
 
@@ -278,15 +265,10 @@ fn part_2(directions: &[Direction], network: &Network) -> usize {
             res[min_idx] = its[min_idx].next().unwrap();
         }
     } else {
-        let mut res = 0;
-        let inc = walk_cycles.iter().map(|pc| pc.length).min().unwrap();
-        loop {
-            res += inc;
-            if walk_cycles.iter().all(|pc| res % pc.length == 0) {
-                break;
-            }
-        }
-        res
+        walk_cycles
+            .iter()
+            .map(|pc| pc.length)
+            .fold(1, |tmp, cl| tmp.lcm(&cl))
     }
 }
 

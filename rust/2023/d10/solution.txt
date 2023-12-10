@@ -1,0 +1,6 @@
+loop length going N: 13902
+loop length going S: 13902
+Part 1: 6951
+loop length going N: 13902
+loop length going S: 13902
+Part 2: 563

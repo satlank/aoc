@@ -28,6 +28,31 @@ fn read<R: Read>(io: R) -> DigPlan {
     }
 }
 
+fn read2<R: Read>(io: R) -> DigPlan {
+    let br = BufReader::new(io);
+    DigPlan {
+        actions: br
+            .lines()
+            .map_while(Result::ok)
+            .map(|line| {
+                let parts = line.split_whitespace().collect::<Vec<_>>();
+                assert_eq!(parts.len(), 3);
+                let encoded = parts[2];
+                // (#70c710)
+                // 012345678
+                let len = u32::from_str_radix(&encoded[2..7], 16).unwrap();
+                match &encoded[7..8] {
+                    "3" => Action::Up(len),
+                    "1" => Action::Down(len),
+                    "2" => Action::Left(len),
+                    "0" => Action::Right(len),
+                    _ => panic!("Invalid action: {}", parts[0]),
+                }
+            })
+            .collect(),
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct DigPlan {
     actions: Vec<Action>,
@@ -115,27 +140,56 @@ fn part_1(dig_plan: &DigPlan) -> usize {
         for x in min_x - 1..=max_x + 1 {
             if perimeter.contains(&(x, y)) {
                 inside += 1;
-                //print!("*");
             } else if outside.contains(&(x, y)) {
-                //print!(".");
             } else {
                 inside += 1;
-                //print!("#");
             }
         }
-        //println!("");
     }
     inside
 }
 
 fn part_2(dig_plan: &DigPlan) -> usize {
-    0
+    let mut perimeter = Vec::new();
+    let mut current = (0, 0);
+    let mut permimeter_len = 0i64;
+    perimeter.push(current);
+    for a in &dig_plan.actions {
+        let (d, vec) = match a {
+            Action::Up(d) => (d, (0, 1)),
+            Action::Down(d) => (d, (0, -1)),
+            Action::Left(d) => (d, (-1, 0)),
+            Action::Right(d) => (d, (1, 0)),
+        };
+        permimeter_len += *d as i64;
+        let d = *d as i32;
+        current = (current.0 + d * vec.0, current.1 + d * vec.1);
+        perimeter.push(current);
+    }
+    assert_eq!(perimeter.last(), perimeter.first());
+
+    // Using the [trapazoid area formula](https://en.wikipedia.org/wiki/Shoelace_formula#Trapezoid_formula)
+    // BUT we need to correct for the 'thickness' of the perimeter.  For corner tiles, we only
+    // account for 1/4 or 3/4 of the tile, and for straight-edge tiles, we only account for 1/2 of the tile.
+    // There are going to be 4 more 1/4 tiles than 3/4 tiles (because the polygon is closed), so we
+    // can just count the corner as 1/2 as well and then finally add the extra 1 on.
+    let mut area = 0i64;
+
+    // NB: -1 because the the first and last are the same point
+    for i in 0..perimeter.len() - 1 {
+        let (x0, y0) = perimeter[i];
+        let (x1, y1) = perimeter[i + 1];
+        area += ((y0 + y1) as i64) * ((x0 - x1) as i64);
+    }
+
+    (area.abs() / 2 + permimeter_len / 2 + 1) as usize
 }
 
 fn main() {
     let input = read(File::open("input.txt").unwrap());
     let p1 = part_1(&input);
     println!("Part 1: {}", p1);
+    let input = read2(File::open("input.txt").unwrap());
     let p2 = part_2(&input);
     println!("Part 2: {}", p2);
 }
@@ -145,9 +199,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn example_1() {
+    fn example_1_1() {
         let input = read(File::open("example1.txt").unwrap());
         assert_eq!(part_1(&input), 62);
-        //assert_eq!(part_2(&input), 1);
+    }
+
+    #[test]
+    fn example_1_2() {
+        let input = read2(File::open("example1.txt").unwrap());
+        assert_eq!(part_2(&input), 952408144115);
     }
 }

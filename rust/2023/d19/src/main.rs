@@ -169,12 +169,10 @@ fn split_range_less_than(
 ) -> (Option<Range<usize>>, Option<Range<usize>>) {
     if range.contains(&val) && range.start != val {
         (Some(range.start..val), Some(val..range.end))
+    } else if val <= range.start {
+        (None, Some(range.clone()))
     } else {
-        if val <= range.start {
-            (None, Some(range.clone()))
-        } else {
-            (Some(range.clone()), None)
-        }
+        (Some(range.clone()), None)
     }
 }
 
@@ -197,12 +195,10 @@ fn split_range_greater_than(
 ) -> (Option<Range<usize>>, Option<Range<usize>>) {
     if range.contains(&val) && val < range.end - 1 {
         (Some(val + 1..range.end), Some(range.start..val + 1))
+    } else if val >= range.end - 1 {
+        (None, Some(range.clone()))
     } else {
-        if val >= range.end - 1 {
-            (None, Some(range.clone()))
-        } else {
-            (Some(range.clone()), None)
-        }
+        (Some(range.clone()), None)
     }
 }
 
@@ -237,13 +233,13 @@ fn walk(
     let con = &wf.conditions[cond_idx];
     match con {
         Condition::LessThan(c, val, target) => {
-            let current_range = valid.get(&c).unwrap();
+            let current_range = valid.get(c).unwrap();
             let (matches, fails) = split_range_less_than(current_range, *val);
             match (matches, fails) {
                 (Some(matches), None) => {
                     let mut valid = valid.clone();
                     valid.insert(*c, matches);
-                    return walk(rules, target, 0, valid);
+                    walk(rules, target, 0, valid)
                 }
                 (Some(matches), Some(fails)) => {
                     let mut follow_match = valid.clone();
@@ -253,24 +249,24 @@ fn walk(
                     follow_fail.insert(*c, fails);
                     let mut f = walk(rules, wf_name, cond_idx + 1, follow_fail);
                     m.append(&mut f);
-                    return m;
+                    m
                 }
                 (None, Some(fails)) => {
                     let mut valid = valid.clone();
                     valid.insert(*c, fails);
-                    return walk(rules, wf_name, cond_idx + 1, valid);
+                    walk(rules, wf_name, cond_idx + 1, valid)
                 }
                 (None, None) => unreachable!(),
-            };
+            }
         }
         Condition::GreaterThan(c, val, ref target) => {
-            let current_range = valid.get(&c).unwrap();
+            let current_range = valid.get(c).unwrap();
             let (matches, fails) = split_range_greater_than(current_range, *val);
             match (matches, fails) {
                 (Some(matches), None) => {
                     let mut valid = valid.clone();
                     valid.insert(*c, matches);
-                    return walk(rules, target, 0, valid);
+                    walk(rules, target, 0, valid)
                 }
                 (Some(matches), Some(fails)) => {
                     let mut follow_match = valid.clone();
@@ -280,19 +276,19 @@ fn walk(
                     follow_fail.insert(*c, fails);
                     let mut f = walk(rules, wf_name, cond_idx + 1, follow_fail);
                     m.append(&mut f);
-                    return m;
+                    m
                 }
                 (None, Some(fails)) => {
                     let mut valid = valid.clone();
                     valid.insert(*c, fails);
-                    return walk(rules, wf_name, cond_idx + 1, valid);
+                    walk(rules, wf_name, cond_idx + 1, valid)
                 }
                 (None, None) => unreachable!(),
-            };
+            }
         }
         Condition::Final(ref target) => {
             if target == "A" {
-                return vec![valid];
+                vec![valid]
             } else if target == "R" {
                 return vec![];
             } else {

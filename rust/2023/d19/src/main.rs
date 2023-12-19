@@ -4,6 +4,7 @@ use std::{
     collections::HashMap,
     fs::File,
     io::{BufRead, BufReader, Read},
+    ops::Range,
 };
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -162,16 +163,170 @@ fn part_1(rules: &Rules, parts: &[Part]) -> usize {
         .sum()
 }
 
-fn part_2(_rules: &Rules) -> usize {
-    todo!()
+fn split_range_less_than(
+    range: &Range<usize>,
+    val: usize,
+) -> (Option<Range<usize>>, Option<Range<usize>>) {
+    if range.contains(&val) && range.start != val {
+        (Some(range.start..val), Some(val..range.end))
+    } else {
+        if val <= range.start {
+            (None, Some(range.clone()))
+        } else {
+            (Some(range.clone()), None)
+        }
+    }
+}
+
+#[test]
+fn test_split_range_less_than() {
+    assert_eq!(
+        split_range_less_than(&(3..10), 5),
+        (Some(3..5), Some(5..10))
+    );
+    assert_eq!(split_range_less_than(&(3..10), 3), (None, Some(3..10)));
+    assert_eq!(split_range_less_than(&(3..10), 10), (Some(3..10), None));
+    assert_eq!(split_range_less_than(&(3..10), 0), (None, Some(3..10)));
+    assert_eq!(split_range_less_than(&(3..10), 10), (Some(3..10), None));
+    assert_eq!(split_range_less_than(&(3..10), 11), (Some(3..10), None));
+}
+
+fn split_range_greater_than(
+    range: &Range<usize>,
+    val: usize,
+) -> (Option<Range<usize>>, Option<Range<usize>>) {
+    if range.contains(&val) && val < range.end - 1 {
+        (Some(val + 1..range.end), Some(range.start..val + 1))
+    } else {
+        if val >= range.end - 1 {
+            (None, Some(range.clone()))
+        } else {
+            (Some(range.clone()), None)
+        }
+    }
+}
+
+#[test]
+fn test_split_range_greater_than() {
+    assert_eq!(
+        split_range_greater_than(&(3..10), 5),
+        (Some(6..10), Some(3..6))
+    );
+    assert_eq!(
+        split_range_greater_than(&(3..10), 3),
+        (Some(4..10), Some(3..4))
+    );
+    assert_eq!(split_range_greater_than(&(3..10), 9), (None, Some(3..10)));
+    assert_eq!(split_range_greater_than(&(3..10), 0), (Some(3..10), None));
+    assert_eq!(split_range_greater_than(&(3..10), 10), (None, Some(3..10)));
+    assert_eq!(split_range_greater_than(&(3..10), 11), (None, Some(3..10)));
+}
+
+fn walk(
+    rules: &Rules,
+    wf_name: &str,
+    cond_idx: usize,
+    valid: HashMap<Class, Range<usize>>,
+) -> Vec<HashMap<Class, Range<usize>>> {
+    if wf_name == "A" {
+        return vec![valid];
+    } else if wf_name == "R" {
+        return Vec::new();
+    }
+    let wf = rules.get(wf_name).unwrap();
+    let con = &wf.conditions[cond_idx];
+    match con {
+        Condition::LessThan(c, val, target) => {
+            let current_range = valid.get(&c).unwrap();
+            let (matches, fails) = split_range_less_than(current_range, *val);
+            match (matches, fails) {
+                (Some(matches), None) => {
+                    let mut valid = valid.clone();
+                    valid.insert(*c, matches);
+                    return walk(rules, target, 0, valid);
+                }
+                (Some(matches), Some(fails)) => {
+                    let mut follow_match = valid.clone();
+                    follow_match.insert(*c, matches);
+                    let mut m = walk(rules, target, 0, follow_match);
+                    let mut follow_fail = valid.clone();
+                    follow_fail.insert(*c, fails);
+                    let mut f = walk(rules, wf_name, cond_idx + 1, follow_fail);
+                    m.append(&mut f);
+                    return m;
+                }
+                (None, Some(fails)) => {
+                    let mut valid = valid.clone();
+                    valid.insert(*c, fails);
+                    return walk(rules, wf_name, cond_idx + 1, valid);
+                }
+                (None, None) => unreachable!(),
+            };
+        }
+        Condition::GreaterThan(c, val, ref target) => {
+            let current_range = valid.get(&c).unwrap();
+            let (matches, fails) = split_range_greater_than(current_range, *val);
+            match (matches, fails) {
+                (Some(matches), None) => {
+                    let mut valid = valid.clone();
+                    valid.insert(*c, matches);
+                    return walk(rules, target, 0, valid);
+                }
+                (Some(matches), Some(fails)) => {
+                    let mut follow_match = valid.clone();
+                    follow_match.insert(*c, matches);
+                    let mut m = walk(rules, target, 0, follow_match);
+                    let mut follow_fail = valid.clone();
+                    follow_fail.insert(*c, fails);
+                    let mut f = walk(rules, wf_name, cond_idx + 1, follow_fail);
+                    m.append(&mut f);
+                    return m;
+                }
+                (None, Some(fails)) => {
+                    let mut valid = valid.clone();
+                    valid.insert(*c, fails);
+                    return walk(rules, wf_name, cond_idx + 1, valid);
+                }
+                (None, None) => unreachable!(),
+            };
+        }
+        Condition::Final(ref target) => {
+            if target == "A" {
+                return vec![valid];
+            } else if target == "R" {
+                return vec![];
+            } else {
+                walk(rules, target, 0, valid)
+            }
+        }
+    }
+}
+
+fn part_2(rules: &Rules) -> usize {
+    let mut initial = HashMap::new();
+    initial.insert(Class::Cool, 1..4001);
+    initial.insert(Class::Musical, 1..4001);
+    initial.insert(Class::Aerodynamic, 1..4001);
+    initial.insert(Class::Shiny, 1..4001);
+    let solution = walk(rules, "in", 0, initial);
+    solution
+        .iter()
+        .map(|s| -> usize {
+            let cool = s.get(&Class::Cool).unwrap();
+            let musical = s.get(&Class::Musical).unwrap();
+            let aerodynamic = s.get(&Class::Aerodynamic).unwrap();
+            let shiny = s.get(&Class::Shiny).unwrap();
+            cool.len() * musical.len() * aerodynamic.len() * shiny.len()
+        })
+        .sum()
 }
 
 fn main() {
     let (rules, parts) = read(File::open("input.txt").unwrap());
     let p1 = part_1(&rules, &parts);
     println!("Part 1: {}", p1);
-    //let p2 = part_2(&rules);
-    //println!("Part 2: {}", p2);
+    let p2 = part_2(&rules);
+    println!("Part 2: {}", p2);
 }
 
 #[cfg(test)]
@@ -182,6 +337,6 @@ mod tests {
     fn example_1() {
         let (rules, parts) = read(File::open("example1.txt").unwrap());
         assert_eq!(part_1(&rules, &parts), 19114);
-        //assert_eq!(part_2(&rules), 167409079868000);
+        assert_eq!(part_2(&rules), 167409079868000);
     }
 }

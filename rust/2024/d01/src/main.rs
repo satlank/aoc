@@ -10,7 +10,7 @@ use std::{
 struct LocationId(usize);
 
 impl LocationId {
-    fn as_isize(&self) -> usize {
+    fn as_usize(&self) -> usize {
         self.0
     }
 
@@ -66,7 +66,7 @@ fn part_2(first: &[LocationId], second: &[LocationId]) -> usize {
     });
     first
         .iter()
-        .map(|x| freq.get(x).unwrap_or(&0) * x.as_isize())
+        .map(|x| freq.get(x).unwrap_or(&0) * x.as_usize())
         .sum()
 }
 
